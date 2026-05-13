@@ -6,17 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Sparkles, Zap } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
+import { usePoll } from "@/hooks/use-poll";
 
-interface HeroProps {
-  stats: {
-    totalServers: number;
-    totalUsers: number;
-    totalOnline: number;
-    totalVotes: number;
-  };
+interface PlatformStats {
+  totalServers: number;
+  totalUsers: number;
+  totalOnline: number;
+  totalVotes: number;
 }
 
-export function Hero({ stats }: HeroProps) {
+async function fetchStats(signal: AbortSignal): Promise<PlatformStats> {
+  const res = await fetch("/api/stats", { signal, cache: "no-store" });
+  if (!res.ok) throw new Error(`stats ${res.status}`);
+  return (await res.json()) as PlatformStats;
+}
+
+export function Hero({ stats: initialStats }: { stats: PlatformStats }) {
+  // Poll the live platform counters every 30s; pauses while the tab is hidden.
+  const { data: stats } = usePoll(fetchStats, initialStats, { intervalMs: 30_000 });
   return (
     <section className="relative overflow-hidden">
       {/* animated grid + aurora */}

@@ -15,6 +15,7 @@ import { MotdDisplay } from "@/components/server/motd-display";
 import { ServerChart } from "@/components/server/server-chart";
 import { ReviewForm } from "@/components/server/review-form";
 import { ReviewList } from "@/components/server/review-list";
+import { LiveStatusBadge, LivePlayersValue } from "@/components/server/live-status";
 import { absoluteUrl, formatNumber, formatUptime } from "@/lib/utils";
 import { safeJsonLd } from "@/lib/security/json-ld";
 import { ExternalLink, Globe, MessageCircle, ShieldCheck, Star, TrendingUp, Users, Zap } from "lucide-react";
@@ -90,10 +91,7 @@ export default async function ServerPage({ params }: Props) {
             </div>
             <div className="min-w-0 flex-1 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant={livePing.online ? "success" : "destructive"}>
-                  <span className={livePing.online ? "status-online" : "status-offline"} />
-                  {livePing.online ? "Онлайн" : "Офлайн"}
-                </Badge>
+                <LiveStatusBadge slug={server.slug} initial={livePing} />
                 {server.isFeatured && (
                   <Badge variant="accent">
                     <Zap className="h-3 w-3" /> Featured
@@ -145,7 +143,12 @@ export default async function ServerPage({ params }: Props) {
 
         {/* Stats strip */}
         <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-5">
-          <StatCard icon={<Users />} label="Зараз онлайн" value={`${livePing.players.online}/${livePing.players.max}`} accent="emerald" />
+          <StatCard
+            icon={<Users />}
+            label="Зараз онлайн"
+            value={<LivePlayersValue slug={server.slug} initial={livePing} />}
+            accent="emerald"
+          />
           <StatCard icon={<TrendingUp />} label="Пік" value={formatNumber(server.peakPlayers)} accent="cyan" />
           <StatCard icon={<Star />} label="Голоси" value={formatNumber(server.voteCount)} accent="amber" />
           <StatCard icon={<Zap />} label="Версія" value={livePing.version?.name ?? server.version ?? "—"} accent="violet" />
@@ -257,7 +260,7 @@ function StatCard({
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string | number;
+  value: React.ReactNode;
   accent: "emerald" | "cyan" | "amber" | "violet" | "rose";
 }) {
   const colors = {
@@ -267,12 +270,13 @@ function StatCard({
     violet: "text-violet-400 bg-violet-500/10",
     rose: "text-rose-400 bg-rose-500/10",
   } as const;
+  const titleAttr = typeof value === "string" || typeof value === "number" ? String(value) : undefined;
   return (
     <div className="min-w-0 rounded-xl border border-border/60 bg-card/50 p-4 backdrop-blur">
       <div className={`mb-2 inline-flex h-8 w-8 items-center justify-center rounded-lg [&_svg]:h-4 [&_svg]:w-4 ${colors[accent]}`}>
         {icon}
       </div>
-      <div className="truncate font-display text-xl font-bold" title={String(value)}>
+      <div className="truncate font-display text-xl font-bold" title={titleAttr}>
         {value}
       </div>
       <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
