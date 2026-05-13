@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
-export const contentType = "image/png";
 
 const SLUG_RE = /^[a-z0-9-]{1,64}$/;
 
