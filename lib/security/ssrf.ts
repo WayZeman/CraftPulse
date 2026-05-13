@@ -97,7 +97,7 @@ export async function assertPublicHost(host: string): Promise<void> {
   }
 
   // Hostname: resolve A + AAAA, reject if any answer is private
-  let answers: string[] = [];
+  const answers: string[] = [];
   try {
     const [a, aaaa] = await Promise.allSettled([
       dns.resolve4(clean),
