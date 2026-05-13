@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -7,13 +7,18 @@ import { APP_NAME, APP_DESCRIPTION, APP_TAGLINE, KEYWORDS } from "@/lib/constant
 import { absoluteUrl } from "@/lib/utils";
 import "./globals.css";
 
-const geistSans = Geist({
+// Geist does not ship Cyrillic glyphs; use Inter + JetBrains Mono instead.
+// The CSS variables keep the original `--font-geist-*` names so Tailwind
+// config and existing styles need no changes.
+const geistSans = Inter({
   variable: "--font-geist-sans",
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  display: "swap",
 });
-const geistMono = Geist_Mono({
+const geistMono = JetBrains_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
