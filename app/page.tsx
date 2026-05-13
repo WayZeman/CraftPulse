@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { after } from "next/server";
 import { Hero } from "@/components/home/hero";
 import { FeaturedGrid } from "@/components/home/featured-grid";
 import { TopServersSection, NewestServersSection } from "@/components/home/top-servers";
@@ -6,6 +7,7 @@ import { TrendingTagsSection } from "@/components/home/trending-tags";
 import { FeaturesSection } from "@/components/home/features-section";
 import { CtaSection } from "@/components/home/cta-section";
 import { getPlatformStats } from "@/services/servers";
+import { refreshStaleServers } from "@/services/monitoring";
 import { Skeleton } from "@/components/ui/skeleton";
 import { absoluteUrl } from "@/lib/utils";
 import { safeJsonLd } from "@/lib/security/json-ld";
@@ -21,6 +23,17 @@ export const metadata = {
 
 export default async function HomePage() {
   const stats = await getPlatformStats();
+
+  // Refresh the stalest servers in the background after the response is sent.
+  // Replaces the Vercel cron (which is once-per-day on Hobby) with on-visit
+  // pings. Internally throttled so a busy page does not stampede pings.
+  after(async () => {
+    try {
+      await refreshStaleServers({ limit: 12, maxAgeMs: 60_000 });
+    } catch (err) {
+      console.error("[home] refresh failed", err);
+    }
+  });
 
   return (
     <>

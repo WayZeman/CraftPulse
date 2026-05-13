@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { after } from "next/server";
 import { searchServers } from "@/services/servers";
 import { db } from "@/lib/db";
 import { searchServerSchema } from "@/lib/validations";
@@ -9,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Server } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { absoluteUrl } from "@/lib/utils";
+import { refreshStaleServers } from "@/services/monitoring";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 30;
@@ -72,6 +74,14 @@ async function CatalogResults({ params }: { params: Record<string, string | stri
 export default async function ServersPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const tags = await db.tag.findMany({ orderBy: { name: "asc" } });
+
+  after(async () => {
+    try {
+      await refreshStaleServers({ limit: 15, maxAgeMs: 60_000 });
+    } catch (err) {
+      console.error("[catalog] refresh failed", err);
+    }
+  });
 
   return (
     <div className="container-x py-10 md:py-14">

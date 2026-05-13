@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { getServerBySlug, getServerCharts } from "@/services/servers";
-import { getUptimePercent } from "@/services/monitoring";
+import { getUptimePercent, refreshServerIfStale } from "@/services/monitoring";
 import { pingServer } from "@/services/minecraft";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,16 @@ export default async function ServerPage({ params }: Props) {
     getUptimePercent(server.id, 30),
     getServerCharts(server.id, 7),
   ]);
+
+  // Persist this visit's ping (uptime log + denormalized counters) in the
+  // background — keeps history alive without relying on a sub-daily cron.
+  after(async () => {
+    try {
+      await refreshServerIfStale(server.slug, 30_000);
+    } catch (err) {
+      console.error("[server-page] refresh failed", err);
+    }
+  });
 
   return (
     <article className="pb-20">
