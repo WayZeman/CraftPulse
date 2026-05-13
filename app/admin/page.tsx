@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Activity, Flag, Server, Star, Users } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 
