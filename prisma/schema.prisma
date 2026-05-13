@@ -5,10 +5,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// For production: switch provider to "postgresql" and add `directUrl = env("DIRECT_URL")`.
-// Local dev uses SQLite for zero-setup.
+// Production target: Neon PostgreSQL. For local zero-setup dev you can
+// override the provider to "sqlite" by editing this file locally — do not
+// commit that change. When you later wire `prisma migrate deploy` into the
+// build, also add `directUrl = env("DIRECT_URL")` and configure DIRECT_URL.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
