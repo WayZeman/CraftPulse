@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm install",
+  "crons": [
+    {
+      "path": "/api/cron/monitor",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/rollup",
+      "schedule": "15 * * * *"
+    }
+  ],
+  "regions": ["fra1"],
+  "headers": [
+    {
+      "source": "/(.*)\\.(jpg|jpeg|gif|png|svg|webp|avif|woff2)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/server/:slug", "destination": "/servers/:slug", "permanent": true }
+  ]
+}
